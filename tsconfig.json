@@ -1,0 +1,23 @@
+{
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "preserve",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "types": ["@nuxtjs/tailwindcss"],
+    "paths": {
+      "#app": ["./node_modules/nuxt/app"],
+      "#components/*": ["components/*"],
+      "#layouts/*": ["layouts/*"],
+      "#pages/*": ["pages/*"],
+      "#store/*": ["store/*"],
+      "#utils/*": ["utils/*"]
+    }
+  },
+  "include": ["nuxt.config.ts", "**/*.ts", "**/*.d.ts", "**/*.tsx", "**/*.vue"]
+}
