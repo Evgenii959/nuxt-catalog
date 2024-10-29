@@ -1,3 +1,7 @@
-https://github.com/Evgenii959/nuxt-catalog.git
+Реализовал проект на на Nuxt3 Composition API + Tailwind + Type Script
 
-Каталог на nuxt
+Ипользовал роутер для создания страниц. Сделал переключение языков, хлебные крошки.
+
+Запустить проект можно:
+npm i
+npm run dev
