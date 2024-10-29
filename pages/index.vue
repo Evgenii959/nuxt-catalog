@@ -38,17 +38,16 @@ const categoryVisible = ref<boolean>(false);
 const subCategoryVisible = ref<boolean>(false);
 
 type Language = 'en' | 'ru' | 'fr';
-const language = treeStore.selectedLanguage as Language;
 
 onMounted(async () => {
   await treeStore.fetchTreeData();
 });
 
-const visibleCategories = computed<TreeData[]>(() => {
+const visibleCategories = computed(() => {
   return treeStore.treeData.filter(
-    (category: TreeData) =>
-      category.locale[language]?.cg_name &&
-      category.locale[language]?.cg_description
+    (category) =>
+      category.locale[treeStore.selectedLanguage as Language]?.cg_name &&
+      category.locale[treeStore.selectedLanguage as Language]?.cg_description
   );
 });
 
@@ -66,7 +65,7 @@ function selectCategory(category: TreeData) {
 }
 
 function getCategoryLink(category: TreeData): string {
-  const link = category.locale[language]?.link;
+  const link = category.locale[treeStore.selectedLanguage as Language]?.link;
   return link ? `/${link}` : `/${category.id}`;
 }
 </script>

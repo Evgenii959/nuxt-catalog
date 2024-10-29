@@ -12,10 +12,10 @@
       >
         <NuxtLink :to="getSubCategoryLink(subCategory)" class="block p-4">
           <h3 class="text-xl font-bold text-gray-800 mb-2">
-            {{ subCategory.locale[language]?.cg_name }}
+            {{ subCategory.locale[treeStore.selectedLanguage]?.cg_name }}
           </h3>
           <p class="text-sm text-gray-600">
-            {{ subCategory.locale[language]?.cg_description }}
+            {{ subCategory.locale[treeStore.selectedLanguage]?.cg_description }}
           </p>
         </NuxtLink>
       </li>
@@ -40,7 +40,6 @@ const treeStore = useTreeStore();
 const route = useRoute();
 
 type Language = 'en' | 'ru' | 'fr';
-const language = treeStore.selectedLanguage as Language;
 
 onMounted(async () => {
   await treeStore.fetchTreeData();
@@ -50,13 +49,13 @@ const selectedCategories = computed<Child[]>(() => {
   const categoryPath = route.path;
 
   const category = treeStore.treeData.find(
-    (cat) => '/' + cat.locale[language]?.link === categoryPath
+    (cat) => '/' + cat.locale[treeStore.selectedLanguage as Language]?.link === categoryPath
   );
   return category?.childs || [];
 });
 
 function getSubCategoryLink(subCategory: Child) {
-  const link = subCategory.locale[language]?.link;
+  const link = subCategory.locale[treeStore.selectedLanguage as Language]?.link;
   return link ? `/${link}` : `/${subCategory.id}`;
 }
 </script>

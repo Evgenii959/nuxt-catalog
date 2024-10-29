@@ -4,11 +4,11 @@
     class="flex flex-col items-center mt-10 min-h-screen"
   >
     <h2 class="text-3xl font-semibold mb-4 text-gray-800">
-      {{ selectedCategories.locale[language]?.cg_name }}
+      {{ selectedCategories.locale[treeStore.selectedLanguage]?.cg_name }}
     </h2>
-    <p class="text-sm text-gray-600 ">
+    <p class="text-sm text-gray-600">
       {{
-        selectedCategories.locale[language]?.cg_description
+        selectedCategories.locale[treeStore.selectedLanguage]?.cg_description
       }}
     </p>
   </div>
@@ -23,7 +23,6 @@ const route = useRoute();
 const treeStore = useTreeStore();
 
 type Language = 'en' | 'ru' | 'fr';
-const language = treeStore.selectedLanguage as Language;
 
 onMounted(async () => {
   await treeStore.fetchTreeData();
@@ -34,18 +33,20 @@ const selectedCategories = computed(() => {
 
   const categoryChild = treeStore.treeData.find((item) => {
     return item.childs.some((child) => {
-      const childLink = '/' + child.locale[language]?.link;
-      return childLink === categoryPath; 
+      const childLink =
+        '/' + child.locale[treeStore.selectedLanguage as Language]?.link;
+      return childLink === categoryPath;
     });
   });
 
   if (categoryChild) {
     const childItem = categoryChild.childs.find((child) => {
-      const childLink = '/' + child.locale[language]?.link;
+      const childLink =
+        '/' + child.locale[treeStore.selectedLanguage as Language]?.link;
       return childLink === categoryPath;
     });
 
-    return childItem;
+    return childItem || null;
   }
 
   return null;
