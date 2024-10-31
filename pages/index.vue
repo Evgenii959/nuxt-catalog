@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center mt-10 min-h-screen px-10">
-    <h2 class="text-3xl font-semibold mb-6 text-gray-800">Категории</h2>
+    <h2 class="text-3xl font-semibold mb-6 text-gray-800">{{ title }}</h2>
     <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <li
         v-for="category in visibleCategories"
@@ -38,6 +38,8 @@ const categoryVisible = ref<boolean>(false);
 const subCategoryVisible = ref<boolean>(false);
 
 type Language = 'en' | 'ru' | 'fr';
+
+const title = computed(() => treeStore.selectedLanguage === 'ru' ? 'Категории' : 'Categories');
 
 onMounted(async () => {
   await treeStore.fetchTreeData();

@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center mt-10 min-h-screen">
-    <h2 class="text-3xl font-semibold mb-4 text-gray-800">Подкатегории</h2>
+    <h2 class="text-3xl font-semibold mb-4 text-gray-800">{{ title }}</h2>
     <ul
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4"
       v-if="selectedCategories.length"
@@ -44,6 +44,8 @@ type Language = 'en' | 'ru' | 'fr';
 onMounted(async () => {
   await treeStore.fetchTreeData();
 });
+
+const title = computed(() => treeStore.selectedLanguage === 'ru' ? 'Подкатегории' : 'Subcategories');
 
 const selectedCategories = computed<Child[]>(() => {
   const categoryPath = route.path;

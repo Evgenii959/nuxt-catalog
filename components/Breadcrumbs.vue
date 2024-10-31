@@ -1,57 +1,102 @@
 <template>
-  <nav class="flex items-center space-x-2 text-gray-600 text-sm mt-4">
-    <router-link
-      v-for="(breadcrumb, index) in breadcrumbs"
-      :key="breadcrumb.path"
-      :to="breadcrumb.path"
-      class="hover:text-indigo-600 transition-colors duration-200"
-    >
-      <span v-if="index > 0">/</span>
-      <span :class="{ 'text-gray-500': index === breadcrumbs.length - 1 }" class="text-l px-2">
-        {{ breadcrumb.name }}
-      </span>
-    </router-link>
-  </nav>
+  <p class="breadcrumbs">
+    <span v-for="(crumb, index) in breadcrumbs" :key="index">
+      {{ crumb }}
+      <span v-if="index < breadcrumbs.length - 1"> / </span>
+    </span>
+  </p>
 </template>
 
-<script>
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+<script setup lang="ts">
+import { computed, watch } from 'vue';
+import { useTreeStore } from '../store/useTreeStore';
+import { useRoute, useRouter } from 'vue-router';
 
-export default {
-  name: 'Breadcrumbs',
-  setup() {
-    const route = useRoute();
+const route = useRoute();
+const router = useRouter();
+const treeStore = useTreeStore();
+const selectedLanguage = computed(() => treeStore.selectedLanguage);
 
-    const breadcrumbs = computed(() => {
-      const pathArray = route.path.split('/').filter(Boolean); // Убираем пустые элементы
-
-      const breadcrumbsArray = [
-        { name: 'Главная', path: '/' }, // Добавляем "Главная" как первую крошку
-        ...pathArray.map((segment, index) => {
-          const path = '/' + pathArray.slice(0, index + 1).join('/');
-          const name =
-            route.matched.find(
-              (r) =>
-                r.path
-                  .replace('/:categoryName', '')
-                  .replace('/:subCategoryId', '') === path
-            )?.name || segment;
-
-          return { name: name === 'Index' ? 'Главная' : name, path };
-        }),
-      ];
-
-      return breadcrumbsArray;
-    });
-
-    return { breadcrumbs };
-  },
+// Функция для получения данных с fallback
+const getLocalizedData = (data, language, fallbackLang = 'en') => {
+  if (!data) return {}; 
+  return data[language] || data[fallbackLang] || Object.values(data)[0];
 };
+
+const currentCategory = computed(() => {
+  const categoryName = `${route.params.categoryName}/`;
+  const categoryItemName = `${route.params.categoryItem}`;
+  const foundCategory = treeStore.treeData.find(category =>
+    category.locale[selectedLanguage.value]?.link === categoryName
+  );
+
+ if (!foundCategory) {
+    const foundInChild = treeStore.treeData.find(category => {
+      const child = category.childs?.find(child => {
+       return child.locale[selectedLanguage.value]?.cg_slug === categoryItemName
+        }
+      );
+      return child !== undefined;
+    });
+    return foundInChild ? foundInChild : null;
+  }
+
+  return foundCategory || 'Категория не найдена';
+});
+
+const categoryName = computed(() => {
+  return currentCategory.value && currentCategory.value.locale
+    ? getLocalizedData(currentCategory.value.locale, selectedLanguage.value)?.cg_name || 'Категория'
+    : 'Категория';
+});
+
+const currentCategoryItem = computed(() => {
+  const parentCategory = currentCategory.value;
+
+  if (parentCategory && parentCategory.childs) {
+    return parentCategory.childs.find(child =>
+      child.locale[selectedLanguage.value]?.cg_slug === `${route.params.categoryItem}`
+    );
+  }
+  
+  return null;
+});
+
+const categoryItemName = computed(() => {
+  return currentCategoryItem.value
+    ? getLocalizedData(currentCategoryItem.value.locale, selectedLanguage.value)?.cg_name
+    : null;
+});
+
+const breadcrumbs = computed(() => {
+  const pathToTop = currentCategory.value?.path_to_top || [];
+  const currentCategoryName = categoryName.value;
+  const currentCategoryItemName = categoryItemName.value;
+
+  const breadcrumbNames = pathToTop.map((item) => {
+    return getLocalizedData(item, selectedLanguage.value)?.cg_name || 'Категория';
+  });
+
+  return [...breadcrumbNames, currentCategoryName, currentCategoryItemName]; 
+});
+
+watch(selectedLanguage, () => {
+  router.push('/'); 
+});
 </script>
 
 <style scoped>
-nav {
-  padding-left: 16px;
+.breadcrumbs {
+  margin: 20px;
+  font-size: 0.875rem;
+  color: gray;
+}
+
+.external-link {
+  display: block;
+  margin-top: 10px;
+  color: blue;
+  text-decoration: underline;
+  font-size: 0.875rem;
 }
 </style>
